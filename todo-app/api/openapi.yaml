@@ -1,0 +1,475 @@
+openapi: 3.0.3
+info:
+  title: Todo API
+  description: |
+    A simple Todo API built with Go following Domain-Driven Design principles.
+    This API allows you to create, retrieve, update, and delete todo items,
+    as well as mark them as complete or incomplete.
+  version: 1.0.0
+  contact:
+    name: Tomotaka Shimizu
+    email: tomotaka.developer@gmail.com
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+paths:
+  /api/todos:
+    get:
+      summary: Get all todos
+      description: |
+        Retrieves a list of all todo items.
+        This endpoint returns an empty array if no todos exist.
+      operationId: getAllTodos
+      tags:
+        - todos
+      responses:
+        '200':
+          description: A list of todo items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TodoResponse'
+              examples:
+                todoList:
+                  summary: Example todo list
+                  value:
+                    - id: "123e4567-e89b-12d3-a456-426614174000"
+                      title: "Learn Go"
+                      description: "Learn Go programming language"
+                      completed: false
+                      createdAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+                      updatedAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+                    - id: "223e4567-e89b-12d3-a456-426614174001"
+                      title: "Build REST API"
+                      description: "Create a RESTful API with Go"
+                      completed: true
+                      createdAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+                      updatedAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  summary: Internal server error
+                  value:
+                    error: "internal server error"
+    post:
+      summary: Create a new todo
+      description: |
+        Creates a new todo item with the provided title and optional description.
+        The title is required and cannot be empty.
+      operationId: createTodo
+      tags:
+        - todos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTodoRequest'
+            examples:
+              createTodo:
+                summary: Create a new todo
+                value:
+                  title: "Learn Go"
+                  description: "Learn Go programming language"
+      responses:
+        '201':
+          description: Todo created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+              examples:
+                todoCreated:
+                  summary: Todo created successfully
+                  value:
+                    id: "123e4567-e89b-12d3-a456-426614174000"
+                    title: "Learn Go"
+                    description: "Learn Go programming language"
+                    completed: false
+                    createdAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+                    updatedAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+        '400':
+          description: Bad request - Empty title
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                emptyTitle:
+                  summary: Empty title error
+                  value:
+                    error: "todo title cannot be empty"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  summary: Internal server error
+                  value:
+                    error: "internal server error"
+  /api/todos/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: The todo ID (UUID format)
+        example: "123e4567-e89b-12d3-a456-426614174000"
+    get:
+      summary: Get a specific todo
+      description: |
+        Retrieves a specific todo item by its UUID.
+        Returns 404 if the todo with the specified ID does not exist.
+      operationId: getTodoById
+      tags:
+        - todos
+      responses:
+        '200':
+          description: Todo item found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+              examples:
+                todoFound:
+                  summary: Todo found
+                  value:
+                    id: "123e4567-e89b-12d3-a456-426614174000"
+                    title: "Learn Go"
+                    description: "Learn Go programming language"
+                    completed: false
+                    createdAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+                    updatedAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+        '404':
+          description: Todo not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                todoNotFound:
+                  summary: Todo not found error
+                  value:
+                    error: "todo not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  summary: Internal server error
+                  value:
+                    error: "internal server error"
+    put:
+      summary: Update a todo
+      description: |
+        Updates a specific todo item by ID.
+        The title is required and cannot be empty.
+        Returns 404 if the todo with the specified ID does not exist.
+      operationId: updateTodo
+      tags:
+        - todos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTodoRequest'
+            examples:
+              updateTodo:
+                summary: Update a todo
+                value:
+                  title: "Learn Advanced Go"
+                  description: "Learn advanced Go programming concepts"
+      responses:
+        '200':
+          description: Todo updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+              examples:
+                todoUpdated:
+                  summary: Todo updated successfully
+                  value:
+                    id: "123e4567-e89b-12d3-a456-426614174000"
+                    title: "Learn Advanced Go"
+                    description: "Learn advanced Go programming concepts"
+                    completed: false
+                    createdAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+                    updatedAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+        '400':
+          description: Bad request - Empty title
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                emptyTitle:
+                  summary: Empty title error
+                  value:
+                    error: "todo title cannot be empty"
+        '404':
+          description: Todo not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                todoNotFound:
+                  summary: Todo not found error
+                  value:
+                    error: "todo not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  summary: Internal server error
+                  value:
+                    error: "internal server error"
+    delete:
+      summary: Delete a todo
+      description: |
+        Deletes a specific todo item by ID.
+        Returns 204 No Content on successful deletion.
+        Returns 404 if the todo with the specified ID does not exist.
+      operationId: deleteTodo
+      tags:
+        - todos
+      responses:
+        '204':
+          description: Todo deleted successfully
+        '404':
+          description: Todo not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                todoNotFound:
+                  summary: Todo not found error
+                  value:
+                    error: "todo not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  summary: Internal server error
+                  value:
+                    error: "internal server error"
+  /api/todos/{id}/complete:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: The todo ID (UUID format)
+        example: "123e4567-e89b-12d3-a456-426614174000"
+    patch:
+      summary: Mark a todo as complete
+      description: |
+        Marks a specific todo item as completed.
+        Returns 404 if the todo with the specified ID does not exist.
+      operationId: completeTodo
+      tags:
+        - todos
+      responses:
+        '200':
+          description: Todo marked as complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+              examples:
+                todoCompleted:
+                  summary: Todo marked as complete
+                  value:
+                    id: "123e4567-e89b-12d3-a456-426614174000"
+                    title: "Learn Go"
+                    description: "Learn Go programming language"
+                    completed: true
+                    createdAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+                    updatedAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+        '404':
+          description: Todo not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                todoNotFound:
+                  summary: Todo not found error
+                  value:
+                    error: "todo not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  summary: Internal server error
+                  value:
+                    error: "internal server error"
+  /api/todos/{id}/incomplete:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: The todo ID (UUID format)
+        example: "123e4567-e89b-12d3-a456-426614174000"
+    patch:
+      summary: Mark a todo as incomplete
+      description: |
+        Marks a specific todo item as incomplete.
+        Returns 404 if the todo with the specified ID does not exist.
+      operationId: incompleteTodo
+      tags:
+        - todos
+      responses:
+        '200':
+          description: Todo marked as incomplete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodoResponse'
+              examples:
+                todoIncompleted:
+                  summary: Todo marked as incomplete
+                  value:
+                    id: "123e4567-e89b-12d3-a456-426614174000"
+                    title: "Learn Go"
+                    description: "Learn Go programming language"
+                    completed: false
+                    createdAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+                    updatedAt: "Mon, 02 Jan 2006 15:04:05 GMT"
+        '404':
+          description: Todo not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                todoNotFound:
+                  summary: Todo not found error
+                  value:
+                    error: "todo not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                serverError:
+                  summary: Internal server error
+                  value:
+                    error: "internal server error"
+components:
+  schemas:
+    TodoResponse:
+      type: object
+      description: Represents a todo item in responses
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the todo item
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        title:
+          type: string
+          description: Title of the todo item
+          minLength: 1
+          example: "Learn Go"
+        description:
+          type: string
+          description: Optional description of the todo item
+          example: "Learn Go programming language"
+        completed:
+          type: boolean
+          description: Whether the todo item is completed
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp in HTTP date format
+          example: "Mon, 02 Jan 2006 15:04:05 GMT"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp in HTTP date format
+          example: "Mon, 02 Jan 2006 15:04:05 GMT"
+      required:
+        - id
+        - title
+        - completed
+        - createdAt
+        - updatedAt
+    CreateTodoRequest:
+      type: object
+      description: Request body for creating a new todo item
+      properties:
+        title:
+          type: string
+          description: Title of the todo item (required, non-empty)
+          minLength: 1
+          example: "Learn Go"
+        description:
+          type: string
+          description: Optional description of the todo item
+          example: "Learn Go programming language"
+      required:
+        - title
+    UpdateTodoRequest:
+      type: object
+      description: Request body for updating an existing todo item
+      properties:
+        title:
+          type: string
+          description: New title for the todo item (required, non-empty)
+          minLength: 1
+          example: "Learn Go"
+        description:
+          type: string
+          description: New description for the todo item
+          example: "Learn Go programming language"
+      required:
+        - title
+    ErrorResponse:
+      type: object
+      description: Standard error response format
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "todo not found"
+      required:
+        - error
