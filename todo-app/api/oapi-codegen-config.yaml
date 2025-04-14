@@ -1,0 +1,9 @@
+package: api
+generate:
+  models: true
+  server: true
+  client: false
+  spec: true
+output: internal/interfaces/api/generated.go
+import-mapping:
+  ./components.yaml: github.com/tomotakashimizu/devin-sandbox/todo-app/internal/interfaces/api
