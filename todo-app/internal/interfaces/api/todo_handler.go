@@ -3,8 +3,10 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/tomotakashimizu/devin-sandbox/todo-app/internal/application"
 	"github.com/tomotakashimizu/devin-sandbox/todo-app/internal/domain/todo"
 )
@@ -21,8 +23,8 @@ func NewTodoHandler(todoService *application.TodoService) *TodoHandler {
 	}
 }
 
-// TodoResponse represents the HTTP response for a todo
-type TodoResponse struct {
+// LegacyTodoResponse represents the HTTP response for a todo in the legacy handler
+type LegacyTodoResponse struct {
 	ID          string `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description,omitempty"`
@@ -31,27 +33,28 @@ type TodoResponse struct {
 	UpdatedAt   string `json:"updatedAt"`
 }
 
-// CreateTodoRequest represents the HTTP request for creating a todo
-type CreateTodoRequest struct {
-	Title       string `json:"title"`
-	Description string `json:"description,omitempty"`
-}
-
-// UpdateTodoRequest represents the HTTP request for updating a todo
-type UpdateTodoRequest struct {
-	Title       string `json:"title"`
-	Description string `json:"description,omitempty"`
-}
+// Legacy request types - using the generated types for actual requests
+type legacyCreateTodoRequest CreateTodoRequest
+type legacyUpdateTodoRequest UpdateTodoRequest
 
 // todoToResponse converts a todo to a response
 func todoToResponse(t *todo.Todo) TodoResponse {
+	var description *string
+	if t.Description != "" {
+		desc := t.Description
+		description = &desc
+	}
+
+	createdTime, _ := time.Parse(time.RFC1123, t.CreatedAt)
+	updatedTime, _ := time.Parse(time.RFC1123, t.UpdatedAt)
+
 	return TodoResponse{
-		ID:          t.ID,
+		Id:          openapi_types.UUID(t.ID),
 		Title:       t.Title,
-		Description: t.Description,
+		Description: description,
 		Completed:   t.Completed,
-		CreatedAt:   t.CreatedAt.Format(http.TimeFormat),
-		UpdatedAt:   t.UpdatedAt.Format(http.TimeFormat),
+		CreatedAt:   createdTime,
+		UpdatedAt:   updatedTime,
 	}
 }
 
@@ -76,7 +79,7 @@ func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 
 	dto := application.CreateTodoDTO{
 		Title:       req.Title,
-		Description: req.Description,
+		Description: stringPtrToString(req.Description),
 	}
 
 	t, err := h.todoService.Create(dto)
@@ -143,7 +146,7 @@ func (h *TodoHandler) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 
 	dto := application.UpdateTodoDTO{
 		Title:       req.Title,
-		Description: req.Description,
+		Description: stringPtrToString(req.Description),
 	}
 
 	t, err := h.todoService.Update(id, dto)
@@ -218,4 +221,12 @@ func (h *TodoHandler) IncompleteTodo(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(todoToResponse(t))
+}
+
+// Helper function to convert *string to string
+func stringPtrToString(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
