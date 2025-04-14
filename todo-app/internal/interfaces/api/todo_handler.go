@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 	openapi_types "github.com/oapi-codegen/runtime/types"
@@ -45,9 +44,8 @@ func todoToResponse(t *todo.Todo) TodoResponse {
 		description = &desc
 	}
 
-	uuid, _ := openapi_types.ParseUUID(t.ID)
 	return TodoResponse{
-		Id:          uuid,
+		Id:          openapi_types.UUID(t.ID),
 		Title:       t.Title,
 		Description: description,
 		Completed:   t.Completed,
@@ -221,10 +219,3 @@ func (h *TodoHandler) IncompleteTodo(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(todoToResponse(t))
 }
 
-// Helper function to convert *string to string
-func stringPtrToString(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
-}

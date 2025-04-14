@@ -3,7 +3,6 @@ package api
 import (
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	openapi_types "github.com/oapi-codegen/runtime/types"
@@ -169,9 +168,8 @@ func domainToResponse(t *todo.Todo) TodoResponse {
 		description = &t.Description
 	}
 
-	uuid, _ := openapi_types.ParseUUID(t.ID)
 	return TodoResponse{
-		Id:          uuid,
+		Id:          openapi_types.UUID(t.ID),
 		Title:       t.Title,
 		Description: description,
 		Completed:   t.Completed,
