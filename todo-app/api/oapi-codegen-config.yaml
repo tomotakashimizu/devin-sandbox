@@ -1,9 +1,9 @@
 package: api
+output-file: internal/interfaces/api/generated.go
+additional-imports:
+  - alias: "api"
+    package: "github.com/tomotakashimizu/devin-sandbox/todo-app/internal/interfaces/api"
 generate:
   models: true
   server: true
-  client: false
   spec: true
-output: internal/interfaces/api/generated.go
-import-mapping:
-  ./components.yaml: github.com/tomotakashimizu/devin-sandbox/todo-app/internal/interfaces/api
