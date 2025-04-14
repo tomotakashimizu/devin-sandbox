@@ -45,16 +45,13 @@ func todoToResponse(t *todo.Todo) TodoResponse {
 		description = &desc
 	}
 
-	createdTime, _ := time.Parse(time.RFC1123, t.CreatedAt)
-	updatedTime, _ := time.Parse(time.RFC1123, t.UpdatedAt)
-
 	return TodoResponse{
 		Id:          openapi_types.UUID(t.ID),
 		Title:       t.Title,
 		Description: description,
 		Completed:   t.Completed,
-		CreatedAt:   createdTime,
-		UpdatedAt:   updatedTime,
+		CreatedAt:   t.CreatedAt,
+		UpdatedAt:   t.UpdatedAt,
 	}
 }
 
