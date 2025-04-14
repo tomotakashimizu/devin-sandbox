@@ -45,8 +45,9 @@ func todoToResponse(t *todo.Todo) TodoResponse {
 		description = &desc
 	}
 
+	uuid, _ := openapi_types.ParseUUID(t.ID)
 	return TodoResponse{
-		Id:          openapi_types.UUID(t.ID),
+		Id:          uuid,
 		Title:       t.Title,
 		Description: description,
 		Completed:   t.Completed,

@@ -169,22 +169,15 @@ func domainToResponse(t *todo.Todo) TodoResponse {
 		description = &t.Description
 	}
 
+	uuid, _ := openapi_types.ParseUUID(t.ID)
 	return TodoResponse{
-		Id:          openapi_types.UUID(t.ID),
+		Id:          uuid,
 		Title:       t.Title,
 		Description: description,
 		Completed:   t.Completed,
-		CreatedAt:   parseTime(t.CreatedAt),
-		UpdatedAt:   parseTime(t.UpdatedAt),
+		CreatedAt:   t.CreatedAt,
+		UpdatedAt:   t.UpdatedAt,
 	}
-}
-
-func parseTime(timeStr string) time.Time {
-	t, err := time.Parse(time.RFC1123, timeStr)
-	if err != nil {
-		return time.Now()
-	}
-	return t
 }
 
 func stringPtrToString(s *string) string {
