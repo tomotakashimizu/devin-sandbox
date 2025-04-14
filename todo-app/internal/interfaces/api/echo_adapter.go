@@ -168,8 +168,10 @@ func domainToResponse(t *todo.Todo) TodoResponse {
 		description = &t.Description
 	}
 
+	var uuid openapi_types.UUID
+	_ = uuid.UnmarshalText([]byte(t.ID))
 	return TodoResponse{
-		Id:          openapi_types.UUID(t.ID),
+		Id:          uuid,
 		Title:       t.Title,
 		Description: description,
 		Completed:   t.Completed,

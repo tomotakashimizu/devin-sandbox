@@ -44,8 +44,10 @@ func todoToResponse(t *todo.Todo) TodoResponse {
 		description = &desc
 	}
 
+	var uuid openapi_types.UUID
+	_ = uuid.UnmarshalText([]byte(t.ID))
 	return TodoResponse{
-		Id:          openapi_types.UUID(t.ID),
+		Id:          uuid,
 		Title:       t.Title,
 		Description: description,
 		Completed:   t.Completed,
@@ -218,4 +220,3 @@ func (h *TodoHandler) IncompleteTodo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(todoToResponse(t))
 }
-
