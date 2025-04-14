@@ -180,7 +180,10 @@ func domainToResponse(t *todo.Todo) TodoResponse {
 }
 
 func parseTime(timeStr string) time.Time {
-	t, _ := time.Parse(time.RFC1123, timeStr)
+	t, err := time.Parse(time.RFC1123, timeStr)
+	if err != nil {
+		return time.Now()
+	}
 	return t
 }
 
