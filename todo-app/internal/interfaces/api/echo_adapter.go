@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/oapi-codegen/runtime/types"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 	"github.com/tomotakashimizu/devin-sandbox/todo-app/internal/application"
 	"github.com/tomotakashimizu/devin-sandbox/todo-app/internal/domain/todo"
 )
@@ -37,8 +37,8 @@ func (a *TodoEchoAdapter) GetAllTodos(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, response)
 }
 
-func (a *TodoEchoAdapter) GetTodoById(ctx echo.Context, id types.UUID) error {
-	t, err := a.todoService.GetByID(string(id))
+func (a *TodoEchoAdapter) GetTodoById(ctx echo.Context, id openapi_types.UUID) error {
+	t, err := a.todoService.GetByID(id.String())
 	if err != nil {
 		if errors.Is(err, todo.ErrTodoNotFound) {
 			return ctx.JSON(http.StatusNotFound, ErrorResponse{
@@ -81,7 +81,7 @@ func (a *TodoEchoAdapter) CreateTodo(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, domainToResponse(t))
 }
 
-func (a *TodoEchoAdapter) UpdateTodo(ctx echo.Context, id types.UUID) error {
+func (a *TodoEchoAdapter) UpdateTodo(ctx echo.Context, id openapi_types.UUID) error {
 	var req UpdateTodoRequest
 	if err := ctx.Bind(&req); err != nil {
 		return ctx.JSON(http.StatusBadRequest, ErrorResponse{
@@ -94,7 +94,7 @@ func (a *TodoEchoAdapter) UpdateTodo(ctx echo.Context, id types.UUID) error {
 		Description: stringPtrToString(req.Description),
 	}
 
-	t, err := a.todoService.Update(string(id), dto)
+	t, err := a.todoService.Update(id.String(), dto)
 	if err != nil {
 		if errors.Is(err, todo.ErrTodoNotFound) {
 			return ctx.JSON(http.StatusNotFound, ErrorResponse{
@@ -114,8 +114,8 @@ func (a *TodoEchoAdapter) UpdateTodo(ctx echo.Context, id types.UUID) error {
 	return ctx.JSON(http.StatusOK, domainToResponse(t))
 }
 
-func (a *TodoEchoAdapter) DeleteTodo(ctx echo.Context, id types.UUID) error {
-	err := a.todoService.Delete(string(id))
+func (a *TodoEchoAdapter) DeleteTodo(ctx echo.Context, id openapi_types.UUID) error {
+	err := a.todoService.Delete(id.String())
 	if err != nil {
 		if errors.Is(err, todo.ErrTodoNotFound) {
 			return ctx.JSON(http.StatusNotFound, ErrorResponse{
@@ -130,8 +130,8 @@ func (a *TodoEchoAdapter) DeleteTodo(ctx echo.Context, id types.UUID) error {
 	return ctx.NoContent(http.StatusNoContent)
 }
 
-func (a *TodoEchoAdapter) CompleteTodo(ctx echo.Context, id types.UUID) error {
-	t, err := a.todoService.MarkAsCompleted(string(id))
+func (a *TodoEchoAdapter) CompleteTodo(ctx echo.Context, id openapi_types.UUID) error {
+	t, err := a.todoService.MarkAsCompleted(id.String())
 	if err != nil {
 		if errors.Is(err, todo.ErrTodoNotFound) {
 			return ctx.JSON(http.StatusNotFound, ErrorResponse{
@@ -146,8 +146,8 @@ func (a *TodoEchoAdapter) CompleteTodo(ctx echo.Context, id types.UUID) error {
 	return ctx.JSON(http.StatusOK, domainToResponse(t))
 }
 
-func (a *TodoEchoAdapter) IncompleteTodo(ctx echo.Context, id types.UUID) error {
-	t, err := a.todoService.MarkAsIncomplete(string(id))
+func (a *TodoEchoAdapter) IncompleteTodo(ctx echo.Context, id openapi_types.UUID) error {
+	t, err := a.todoService.MarkAsIncomplete(id.String())
 	if err != nil {
 		if errors.Is(err, todo.ErrTodoNotFound) {
 			return ctx.JSON(http.StatusNotFound, ErrorResponse{
@@ -170,7 +170,7 @@ func domainToResponse(t *todo.Todo) TodoResponse {
 	}
 
 	return TodoResponse{
-		Id:          types.UUID(t.ID),
+		Id:          openapi_types.UUID(t.ID),
 		Title:       t.Title,
 		Description: description,
 		Completed:   t.Completed,
